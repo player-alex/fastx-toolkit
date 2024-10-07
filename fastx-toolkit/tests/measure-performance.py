@@ -25,8 +25,7 @@ def valid_args(args):
 def parse_args():
 	global args
 
-	parser.add_argument("-o", "--old", help="path of old fastx quality statistics", type=str, required=True)
-	parser.add_argument("-n", "--new", help="path of new fastx quality statistics", type=str, required=True)
+	parser.add_argument("-e", "--exec", help="path of old fastx quality statistics", type=str, required=True)
 	parser.add_argument("-g", "--gen", help="path of sample generator", type=str, required=True)
 	parser.add_argument("-t", "--tmp", help="temporary sample directory", type=str, required=True)
 
@@ -61,14 +60,14 @@ def compare_results(old, new, size, session):
 def execute_comparison():
 	for i in range(len(SAMP_SIZES)):
 		samp_size = str(SAMP_SIZES[i])
-		gen_samp(samp_size)
-
+		
 		for j in range(NUM_SAMPLES[i]):
-			old_result = execute_qual_stats(args.old, samp_size)
-			new_result = execute_qual_stats(args.new, samp_size)
-			compare_results(old_result, new_result, samp_size, j)
+			gen_samp(samp_size)
 
-		del_samp(samp_size)
+			result = execute_qual_stats(args.old, samp_size)
+			print(f"[{session}] Time: {result[0]}ms")
+
+			del_samp(samp_size)
 
 try:
 	parse_args()

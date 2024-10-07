@@ -1,27 +1,3 @@
-
-# FASTX-Toolkit
-The project is based on [agordon/fastx_toolkit](https://github.com/agordon/fastx_toolkit)
-
-The goal is to improve processing performance.
-It provides improved performance through 3 methods:
-
-1. Buffering
-2. OpenMP
-3. CUDA 
-
-OpenMP and CUDA versions use buffering by default.
-
-# Features
-- [x] FASTX Statistics
-	- [x] [Buffering](fastx-toolkit/fastx-qual-stats)
-	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
-	- [ ] [CUDA](fastx-toolkit/fastx-qual-stats-cuda)
-- [x] [FASTX Sample Generator](fastx-samp-gen)
-
-# Benchmarks
-GA403UI-QS091
-![Performance Comparison](refs/plot.png)
-
 | Record Size | Old (ms) | Buffering (ms) | OpenMP (ms) | Buffering Speedup (%) | OpenMP Speedup (%) | OpenMP vs Buffering Increase (%) |
 |-------------|----------|----------------|--------------|------------------------|---------------------|----------------------------------|
 | 1M          | 5259     | 865            | 533          | 83.6                   | 89.9                | 38.4                             |
