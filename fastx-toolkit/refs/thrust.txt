@@ -1,0 +1,74 @@
+#include <thrust/device_vector.h>
+#include <thrust/host_vector.h>
+#include <thrust/reduce.h>
+#include <thrust/extrema.h>
+#include <iostream>
+
+int main() {
+    // 행렬의 크기 정의
+    const int numRows = 4;
+    const int numCols = 3;
+
+    // 행렬 데이터 초기화 (열 우선 순서)
+    float h_matrix[numRows * numCols] = {
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+        7.0, 8.0, 9.0,
+        10.0, 11.0, 12.0
+    };
+
+    // Host 벡터 초기화
+    thrust::host_vector<float> h_vec(h_matrix, h_matrix + numRows * numCols);
+
+    // Device 벡터 초기화
+    thrust::device_vector<float> d_vec = h_vec;
+
+    // 열별 집계 결과를 저장할 Device 벡터
+    thrust::device_vector<float> d_sums(numCols);
+    thrust::device_vector<float> d_mins(numCols);
+    thrust::device_vector<float> d_maxs(numCols);
+
+    // 열별 합계 계산
+    for (int col = 0; col < numCols; ++col) {
+        thrust::device_vector<float> d_col(numRows);
+        thrust::copy(d_vec.begin() + col * numRows, d_vec.begin() + (col + 1) * numRows, d_col.begin());
+
+        // 열별 합계
+        float col_sum = thrust::reduce(d_col.begin(), d_col.end(), 0.0f, thrust::plus<float>());
+        d_sums[col] = col_sum;
+
+        // 열별 최소값
+        float col_min = *thrust::min_element(d_col.begin(), d_col.end());
+        d_mins[col] = col_min;
+
+        // 열별 최대값
+        float col_max = *thrust::max_element(d_col.begin(), d_col.end());
+        d_maxs[col] = col_max;
+    }
+
+    // 결과를 Host 벡터로 복사
+    thrust::host_vector<float> h_sums = d_sums;
+    thrust::host_vector<float> h_mins = d_mins;
+    thrust::host_vector<float> h_maxs = d_maxs;
+
+    // 결과 출력
+    std::cout << "Column sums: ";
+    for (const auto& sum : h_sums) {
+        std::cout << sum << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Column mins: ";
+    for (const auto& min : h_mins) {
+        std::cout << min << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Column maxs: ";
+    for (const auto& max : h_maxs) {
+        std::cout << max << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
