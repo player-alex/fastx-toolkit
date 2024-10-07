@@ -2,7 +2,7 @@
 add_subdirectory(fmt)
 add_subdirectory(fastx-qual-stats)
 add_subdirectory(fastx-qual-stats-omp)
-add_subdirectory(fastx-qual-stats-cuda)
+# add_subdirectory(fastx-qual-stats-cuda)
 add_subdirectory(fastx-samp-gen)
 
 if (CMAKE_VERSION VERSION_GREATER 3.20)
