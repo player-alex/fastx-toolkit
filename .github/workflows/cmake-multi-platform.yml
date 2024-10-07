@@ -45,9 +45,6 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: cuda-toolkit
-      uses: Jimver/cuda-toolkit@v0.2.17
-
     - name: Set up CUDA Environment
       run: echo "/usr/local/cuda/bin" >> $GITHUB_ENV
 
@@ -57,7 +54,6 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCUDAToolkit_ROOT=/usr/local/cuda
         -S ${{ github.workspace }}
 
     - name: Build
