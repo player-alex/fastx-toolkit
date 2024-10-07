@@ -20,7 +20,7 @@ OpenMP and CUDA versions use buffering by default.
 
 # Benchmarks
 GA403UI-QS091
-![Performance Comparison](refs/plot.png)
+![Performance Comparison](fastx-toolkit/refs/plot.png)
 
 | Record Size | Old (ms) | Buffering (ms) | OpenMP (ms) | Buffering Speedup (%) | OpenMP Speedup (%) | OpenMP vs Buffering Increase (%) |
 |-------------|----------|----------------|--------------|------------------------|---------------------|----------------------------------|
