@@ -19,7 +19,7 @@ OpenMP and CUDA versions use buffering by default.
 - [x] [FASTX Sample Generator](fastx-samp-gen)
 
 # Benchmarks
-Device: GA403UI-QS091
+Device: GA403UI-QS091  
 Method: Take mins & rounded  
 
 ![Performance Comparison](fastx-toolkit/refs/plot.png)
