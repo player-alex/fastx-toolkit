@@ -13,7 +13,7 @@ OpenMP and CUDA versions use buffering by default.
 
 # Features
 - [x] FASTX Statistics
-	- [x] [Buffering](fastx-toolkit/fastx-qual-stats-cuda)
+	- [x] [Buffering](fastx-toolkit/fastx-qual-stats)
 	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
 	- [ ] [CUDA](fastx-toolkit/fastx-qual-stats-cuda)
 - [x] [FASTX Sample Generator](fastx-samp-gen)
