@@ -64,6 +64,28 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
+    - name: cuda-toolkit
+      # You may pin to the exact commit or the version.
+      # uses: Jimver/cuda-toolkit@dc581bec6470cf161025608f13d71b3c00c2c0b7
+      uses: Jimver/cuda-toolkit@v0.2.17
+      with:
+        # Cuda version
+        cuda: # optional, default is 12.5.0
+        # Only installs specified subpackages, must be in the form of a JSON array. For example, if you only want to install nvcc and visual studio integration: ["nvcc", "visual_studio_integration"] double quotes required! Note that if you want to use this on Linux, 'network' method MUST be used.
+        sub-packages: # optional, default is []
+        # Only installs specified subpackages that do not have the cuda prefix, must be in the form of a JSON array. For example, if you only want to install libcublas and libcufft: ["libcublas", "libcufft"] double quotes required! Note that this only works with 'network' method on only on Linux.
+        non-cuda-sub-packages: # optional, default is []
+        # Installation method, can be either 'local' or 'network'. 'local' downloads the entire installer with all packages and runs that (you can still only install certain packages with sub-packages on Windows). 'network' downloads a smaller executable which only downloads necessary packages which you can define in subPackages
+        method: # optional, default is local
+        # (Linux and 'local' method only) override arguments for the linux .run installer. For example if you don't want samples use ["--toolkit"] double quotes required!
+        linux-local-args: # optional, default is ["--toolkit", "--samples"]
+        # Use GitHub cache to cache downloaded installer on GitHub servers
+        use-github-cache: # optional, default is true
+        # Use local cache to cache downloaded installer on the local runner
+        use-local-cache: # optional, default is true
+        # Suffix of log file name in artifact
+        log-file-suffix: # optional, default is log.txt
+
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
