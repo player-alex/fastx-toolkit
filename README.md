@@ -13,9 +13,9 @@ OpenMP and CUDA versions use buffering by default.
 
 # Features
 - [x] FASTX Statistics
-	- [x] [Buffering](https://github.com/player-alex/fastx-toolkit/tree/master/fastx-qual-stats)
-	- [x] [OpenMP](https://github.com/player-alex/fastx-toolkit/tree/master/fastx-qual-stats-omp)
-	- [ ] [CUDA](https://github.com/player-alex/fastx-toolkit/tree/master/fastx-qual-stats-cuda)
-- [x] [FASTX Sample Generator](https://github.com/player-alex/fastx-toolkit/tree/master/fastx-samp-gen)
+	- [x] [Buffering](fastx-toolkit/fastx-qual-stats-cuda)
+	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
+	- [ ] [CUDA](fastx-toolkit/fastx-qual-stats-cuda)
+- [x] [FASTX Sample Generator](fastx-samp-gen)
 
 # Benchmarks
