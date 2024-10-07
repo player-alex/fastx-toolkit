@@ -47,16 +47,6 @@ jobs:
 
     - name: cuda-toolkit
       uses: Jimver/cuda-toolkit@v0.2.17
-      with:
-        # Optional settings for CUDA
-        cuda: # specify version if needed
-        sub-packages: [] # specify any sub-packages if needed
-        non-cuda-sub-packages: [] # specify any non-cuda sub-packages if needed
-        method: network # or local, depending on your needs
-        linux-local-args: [] # specify any additional args if needed
-        use-github-cache: true
-        use-local-cache: true
-        log-file-suffix: log.txt
 
     - name: Set up CUDA Environment
       run: echo "/usr/local/cuda/bin" >> $GITHUB_ENV
