@@ -16,13 +16,13 @@ OpenMP and CUDA versions use buffering by default.
 	- [x] [Buffering](fastx-toolkit/fastx-qual-stats)
 	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
 	- [ ] [CUDA](fastx-toolkit/fastx-qual-stats-cuda)
-- [x] [FASTX Sample Generator](fastx-samp-gen)
+- [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
 # Benchmarks
 Device: GA403UI-QS091  
-Method: Take mins & rounded  
+Method: TAKE MINS & ROUND
 
-![Performance Comparison](fastx-toolkit/refs/plot.png)
+![Performance Comparison](fastx-toolkit/tests/results/fastx-statistics.png)
 
 | Record Size | Old (ms) | Buffering (ms) | OpenMP (ms) | Buffering Speedup (%) | OpenMP Speedup (%) | OpenMP vs Buffering Increase (%) |
 |-------------|----------|----------------|--------------|------------------------|---------------------|----------------------------------|

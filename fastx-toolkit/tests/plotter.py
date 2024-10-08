@@ -40,7 +40,7 @@ add_value_labels(bars3)
 
 # 레이블 및 제목 설정
 ax.set_ylabel('Time (ms)')
-ax.set_title('Performance Comparison of Old, Buffering, and OpenMP')
+ax.set_title('FASTX Statistics: Performance Comparison')
 ax.set_xticks(x)
 ax.set_xticklabels(labels)
 ax.legend()
