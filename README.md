@@ -9,40 +9,54 @@ It provides improved performance through 3 methods:
 2. `OpenMP`
 3. `CUDA`
 
-`OpenMP` and `CUDA` versions use buffering by default.
+All tools use buffering by default.
+`OpenMP` and `CUDA` versions also use buffering by default.
 
 # Features
-- [x] FASTX Statistics
+- [x] FASTQ-TO-FASTA
+- [ ] FASTX Statistics
 	- [x] [Buffering](fastx-toolkit/fastx-qual-stats)
 	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
 	- [ ] [CUDA](fastx-toolkit/fastx-qual-stats-cuda)
 - [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
 # Usage
+`FASTQ-TO-FASTA`
+|  Option  | Description | Default | Range | 
+|:--------:|:-----------:|:-------:|:-----:|
+| -h       | print help  |         |       |
+| -i       | set input file name | STDIN ||
+| -o       | set output file name | STDOUT ||
+| -n       | keep sequence with unknown (N) nucleotides. Default is to discard such sequences. | false ||
+| -r       | rename sequence id to number | false ||
+| -\-ibufs | set input buffer size | 32768 ||
+| -\-mxsl  | set maximum sequence length | 25000 ||
+
+
 `FASTX Statistics(Buffering)`
 |  Option  | Description | Default | Range | 
 |:--------:|:-----------:|:-------:|:-----:|
-| -h       | Print help  |         |       |
-| -i       | Set input file name | STDIN ||
-| -o       | Set output file name | STDOUT ||
-| -\-bq     | Set base quality offset | 33 | 0 - 255 |
-| -\-mnq    | Set min quality | -15 | BQ + MNQ >= 0 |
-| -\-mxq    | Set max quality | 93  | BQ + MXQ <= 255 |
-| -\-ibufs  | Set input buffer size | 32768 ||
-| -\-mxsl   | Set maximum sequence length | 25000 ||
+| -h       | print help  |         |       |
+| -i       | set input file name | STDIN ||
+| -o       | set output file name | STDOUT ||
+| -\-bq    | set base quality offset | 33 | 0 - 255 |
+| -\-mnq   | set min quality | -15 | BQ + MNQ >= 0 |
+| -\-mxq   | set max quality | 93  | BQ + MXQ <= 255 |
+| -\-ibufs | set input buffer size | 32768 ||
+| -\-mxsl  | set maximum sequence length | 25000 ||
 
 `FASTX Statistics(OpenMP)`
 |  Option  | Description | Default | Range | 
 |:--------:|:-----------:|:-------:|:-----:|
-| -h       | Print help  |         |       |
-| -i       | Set input file name | STDIN ||
-| -o       | Set output file name | STDOUT ||
-| -\-bq     | Set base quality offset | 33 | 0 - 255 |
-| -\-mnq    | Set min quality | -15 | BQ + MNQ >= 0 |
-| -\-mxq    | Set max quality | 93  | BQ + MXQ <= 255 |
-| -\-ibufs  | Set input buffer size | 32768 ||
-| -\-mxsl   | Set maximum sequence length | 25000 ||
-| -\-rps    | Record pool size | 500 ||
+| -h       | print help  |         |       |
+| -i       | set input file name | STDIN ||
+| -o       | set output file name | STDOUT ||
+| -\-bq    | set base quality offset | 33 | 0 - 255 |
+| -\-mnq   | set min quality | -15 | BQ + MNQ >= 0 |
+| -\-mxq   | set max quality | 93  | BQ + MXQ <= 255 |
+| -\-ibufs | set input buffer size | 32768 ||
+| -\-mxsl  | set maximum sequence length | 25000 ||
+| -\-rps   | record pool size | 500 ||
 
 # Benchmarks
 Device: GA403UI-QS091  

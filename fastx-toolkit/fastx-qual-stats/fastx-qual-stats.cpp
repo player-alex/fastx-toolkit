@@ -198,7 +198,7 @@ void process_record(FastxRecord_t* record, size_t record_idx)
 
 void read_records()
 {
-	size_t record_idx = 0; // FIXED: Receive only one record each time.
+	size_t record_idx = 0; // FIXED: Receive only one record at each time.
 	size_t num_proc_records = 0;
 	function<void(FastxRecord_t*, size_t)> callback = process_record;
 
