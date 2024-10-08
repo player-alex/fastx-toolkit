@@ -5,11 +5,11 @@ The project is based on [agordon/fastx_toolkit](https://github.com/agordon/fastx
 The goal is to improve processing performance.
 It provides improved performance through 3 methods:
 
-1. Buffering
-2. OpenMP
-3. CUDA 
+1. `Buffering`
+2. `OpenMP`
+3. `CUDA`
 
-OpenMP and CUDA versions use buffering by default.
+`OpenMP` and `CUDA` versions use buffering by default.
 
 # Features
 - [x] FASTX Statistics
