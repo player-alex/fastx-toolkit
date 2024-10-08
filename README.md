@@ -1,8 +1,8 @@
 
 
 # FASTX-Toolkit
-This project is based on [agordon/fastx_toolkit](https://github.com/agordon/fastx_toolkit)
-Goal of project is improve processing performance.
+This project is based on [agordon/fastx_toolkit](https://github.com/agordon/fastx_toolkit)  
+Goal of project is improve processing performance.  
 It provides improved performance through 3 methods:
 
 1. `Buffering`
