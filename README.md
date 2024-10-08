@@ -3,7 +3,7 @@
 # FASTX-Toolkit
 This project is based on [agordon/fastx_toolkit](https://github.com/agordon/fastx_toolkit)  
 Goal of project is improve processing performance.  
-It provides improved performance through 3 methods:
+It provides improved performance through 3 ways:
 
 1. `Buffering`
 2. `OpenMP`
