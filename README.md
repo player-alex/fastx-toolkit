@@ -9,7 +9,7 @@ It provides improved performance through 3 methods:
 2. `OpenMP`
 3. `CUDA`
 
-All tools use buffering by default.
+All tools use buffering by default.  
 `OpenMP` and `CUDA` versions also use buffering by default.
 
 # Features
