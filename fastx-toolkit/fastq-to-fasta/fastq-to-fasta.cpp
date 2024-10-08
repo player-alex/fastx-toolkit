@@ -1,4 +1,5 @@
 #include <cinttypes>
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <format>
@@ -14,9 +15,12 @@ static const char* EPILOGUE = "";
 
 /* I/O variables */
 static char* in_buf;
+static char* out_buf;
 
 /* Argument variables */
 static size_t in_buf_size = 32768;
+static size_t out_buf_size = 32768;
+
 static bool keep_n_nuc_seq = false;
 static bool rename_seq_id = false;
 
@@ -25,13 +29,15 @@ static FastxContext_t fastx_ctx;
 static FastxRecord_t fastx_record;
 
 /* internal variables */
+static size_t out_buf_pos = 0;
 static size_t total_bytes_written = 0;
 
 void valid_args()
 {
 	bool result = true;
 
-	result &= in_buf_size > 0;
+	result &= in_buf_size > 0 && out_buf_size > 0;
+	result &= out_buf_size >= fastx_ctx.max_seq_len;
 	result &= fastx_ctx.max_seq_len > 0;
 
 	if (!result)
@@ -51,6 +57,7 @@ void parse_args(int argc, char** argv)
 
 	args::Group io_tuning_group(parser, "I/O Tuning");
 	args::ValueFlag<size_t> ibufs_arg(io_tuning_group, "ibufs", format("input buffer size. default is {}", in_buf_size), { "ibufs" }, in_buf_size);
+	args::ValueFlag<size_t> obufs_arg(io_tuning_group, "obufs", format("output buffer size. default is {}", out_buf_size), { "obufs" }, out_buf_size);
 	args::ValueFlag<size_t> mxsl_arg(io_tuning_group, "mxsl", format("maximum sequence length. default is {}", fastx_ctx.max_seq_len), { "mxsl" }, fastx_ctx.max_seq_len);
 
 	try
@@ -63,6 +70,7 @@ void parse_args(int argc, char** argv)
 		rename_seq_id = args::get(rn_sqid_arg);
 
 		in_buf_size = args::get(ibufs_arg);
+		out_buf_size = args::get(obufs_arg);
 		fastx_ctx.max_seq_len = args::get(mxsl_arg);
 
 		valid_args();
@@ -79,15 +87,19 @@ void parse_args(int argc, char** argv)
 void alloc_bufs()
 {
 	in_buf = new char[in_buf_size];
+	out_buf = new char[out_buf_size];
 
 	memset(&fastx_record, 0, sizeof(FastxRecord_t));
 	fastx_record.seq_id = new char[fastx_ctx.max_seq_len];
 	fastx_record.seq = new char[fastx_ctx.max_seq_len];
+
+	fastx_record.qual = new char[fastx_ctx.max_seq_len];
 }
 
 void free_bufs()
 {
 	if (in_buf) delete[] in_buf;
+	if (out_buf) delete[] out_buf;
 
 	if (fastx_record.seq_id) delete[] fastx_record.seq_id;
 	if (fastx_record.seq) delete[] fastx_record.seq;
@@ -107,17 +119,35 @@ void close_files()
 	close_file(fastx_ctx.out_stream);
 }
 
+void flush_out_buf()
+{
+	fwrite(out_buf, sizeof(char), out_buf_pos, fastx_ctx.out_stream);
+	out_buf_pos = 0;
+}
+
+void print_to_out_buf(size_t print_size, const char* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+
+	if (out_buf_pos + print_size >= out_buf_size)
+		flush_out_buf();
+
+	vsprintf(out_buf + out_buf_pos, format, args); 
+	out_buf_pos += print_size;
+}
+
 void process_record(FastxRecord_t* record, size_t record_idx)
 {
 	if (!keep_n_nuc_seq && strchr(record->seq, 'N') != NULL)
 		return;
-	
-	if (rename_seq_id)
-		fprintf(fastx_ctx.out_stream, "%" PRIu64 "\n", total_bytes_written + 1);
-	else
-		fprintf(fastx_ctx.out_stream, "%s\n", record->seq_id);
 
-	fprintf(fastx_ctx.out_stream, "%s\n", record->seq);
+	if (rename_seq_id)
+		print_to_out_buf(sizeof(size_t) + 1, "%" PRIu64 "\n", total_bytes_written + 1);
+	else
+		print_to_out_buf(record->seq_id_len + 1, "%s\n", record->seq_id);
+
+	print_to_out_buf(record->seq_len + 1, "%s\n", record->seq);
 	total_bytes_written += record->read_count;
 }
 
@@ -138,6 +168,8 @@ void read_records()
 			&record_idx,
 			callback);
 	} while (num_proc_records);
+
+	flush_out_buf();
 }
 
 int main(int argc, char** argv)

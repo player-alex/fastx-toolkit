@@ -145,7 +145,7 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 					throw out_of_range(format("Line length out of range: curr: {}, max: {}", len, ctx->max_seq_len));
 
 				copy(prev_eol, prev_eol + len, next_member_buf);
-				prev_eol[len] = '\0';
+				next_member_buf[len] = '\0';
 				reinterpret_cast<size_t*>(reinterpret_cast<char*>(&records[*record_idx]) + sizeof(char*) * member_count)[line_offset] = len;
 			}
 
@@ -157,8 +157,8 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 				++ctx->total_read_records;
 			}
 
-			num_proc_bytes += next_eol - prev_eol + 1;
-			prev_eol = next_eol + 1;
+			num_proc_bytes += next_eol - prev_eol + 1 + adv_count;
+			prev_eol = next_eol + 1 + adv_count;
 			++ctx->total_read_lines;
 		}
 	}
