@@ -27,7 +27,7 @@ All tools use buffering by default.
 | -h       | print help  |         |       |
 | -i       | set input file name | STDIN ||
 | -o       | set output file name | STDOUT ||
-| -n       | keep sequence with unknown (N) nucleotides. Default is to discard such sequences. | false ||
+| -n       | keep sequence with unknown (N) nucleotides.<br/>Default is to discard such sequences. | false ||
 | -r       | rename sequence id to number | false ||
 | -\-ibufs | set input buffer size | 32768 ||
 | -\-mxsl  | set maximum sequence length | 25000 ||
