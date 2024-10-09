@@ -87,7 +87,7 @@ void parse_args(int argc, char** argv)
 
 	args::Group seq_group(parser, "Sequence");
 	args::ValueFlag<int> mns_arg(seq_group, "mns", format("min seq length. default is {}", min_seq_len), { "mns" }, min_seq_len);
-	args::ValueFlag<int> mxs_arg(seq_group, "mxs", format("max seq length. maximum length is {}. default is {}", MAX_SEQUENCE_LENGTH, max_seq_len), { "mxs" }, max_seq_len);
+	args::ValueFlag<int> mxs_arg(seq_group, "mxs", format("max seq length. max length is {}. default is {}", MAX_SEQUENCE_LENGTH, max_seq_len), { "mxs" }, max_seq_len);
 
 	args::Group io_tuning_group(parser, "I/O Tuning");
 	args::ValueFlag<size_t> obufs_arg(io_tuning_group, "obufs", format("output buffer size. default is {}", out_buf_size), { "obufs" }, out_buf_size);

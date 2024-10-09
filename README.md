@@ -29,9 +29,24 @@ All tools use buffering by default.
 | -o       | set output file name | STDOUT ||
 | -n       | keep sequence with unknown (N) nucleotides.<br/>Default is to discard such sequences. | false ||
 | -r       | rename sequence id to number | false ||
-| -\-ibufs | set input buffer size | 32768 ||
-| -\-mxsl  | set maximum sequence length | 25000 ||
+| -\-ibufs | set input buffer size | 32768 | IBUFS >= MXSL |
+| -\-obufs | set output buffer size | 32768 | > 0 |
+| -\-mxsl  | set maximum sequence length | 25000 | > 0 |
 
+`FASTX Sample Generator`
+|  Option  | Description | Default | Range | 
+|:--------:|:-----------:|:-------:|:-----:|
+| -h        | print help  |         |       |
+| -s, -\-sf | set sample format. fasta or fastq |||
+| -\-nr     | set num of records || > 0 |
+| -\-crlf   | set line break as CRLF | LF ||
+| -o        | set output file name | STDOUT ||
+| -\-bq     | set base quality offset | 33 ||
+| -\-mnq    | set min quality | -15 | BQ + \|MNQ\| >= 0 |
+| -\-mxq    | set max quality | 93 | BQ + \|MXQ\| >= MNQ |
+| -\-mns    | set min seq length | 1 | > 0 |
+| -\-mxs    | set max seq length | 50 | >= MNS |
+| -\-obufs  | set output buffer size | 32768 | > 0 |
 
 `FASTX Statistics(Buffering)`
 |  Option  | Description | Default | Range | 
@@ -42,8 +57,8 @@ All tools use buffering by default.
 | -\-bq    | set base quality offset | 33 | 0 - 255 |
 | -\-mnq   | set min quality | -15 | BQ + MNQ >= 0 |
 | -\-mxq   | set max quality | 93  | BQ + MXQ <= 255 |
-| -\-ibufs | set input buffer size | 32768 ||
-| -\-mxsl  | set maximum sequence length | 25000 ||
+| -\-ibufs | set input buffer size | 32768 | IBUFS >= MXSL |
+| -\-mxsl  | set max sequence length | 25000 | > 0 |
 
 `FASTX Statistics(OpenMP)`
 |  Option  | Description | Default | Range | 
@@ -54,8 +69,8 @@ All tools use buffering by default.
 | -\-bq    | set base quality offset | 33 | 0 - 255 |
 | -\-mnq   | set min quality | -15 | BQ + MNQ >= 0 |
 | -\-mxq   | set max quality | 93  | BQ + MXQ <= 255 |
-| -\-ibufs | set input buffer size | 32768 ||
-| -\-mxsl  | set maximum sequence length | 25000 ||
+| -\-ibufs | set input buffer size | 32768 | IBUFS >= MXSL |
+| -\-mxsl  | set max sequence length | 25000 | > 0 |
 | -\-rps   | record pool size | 500 ||
 
 # Benchmarks

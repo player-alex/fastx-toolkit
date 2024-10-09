@@ -104,7 +104,7 @@ void parse_args(int argc, char** argv)
 
 	args::Group io_tuning_group(parser, "I/O Tuning");
 	args::ValueFlag<size_t> ibufs_arg(io_tuning_group, "ibufs", format("input buffer size. default is {}", in_buf_size), { "ibufs" }, in_buf_size);
-	args::ValueFlag<size_t> mxsl_arg(io_tuning_group, "mxsl", format("maximum sequence length. default is {}", fastx_ctx.max_seq_len), { "mxsl" }, fastx_ctx.max_seq_len);
+	args::ValueFlag<size_t> mxsl_arg(io_tuning_group, "mxsl", format("max sequence length. default is {}", fastx_ctx.max_seq_len), { "mxsl" }, fastx_ctx.max_seq_len);
 	args::ValueFlag<size_t> rps_arg(io_tuning_group, "rps", format("record pool size. default is {}", record_pool_size), { "rps" }, record_pool_size);
 
 	try
