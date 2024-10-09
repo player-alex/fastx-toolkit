@@ -62,7 +62,7 @@ void close_file(FILE* stream);
 FileFormat get_file_format(FILE* stream);
 uint32_t get_read_count(FastxContext_t* ctx, char* seq_id, size_t len);
 
-size_t fwrite_with_line(const void* buf, size_t elem_size, size_t elem_count, FILE* stream);
+size_t fwrite_with_line(const void* buf, size_t elem_size, size_t elem_count, FILE* stream, bool use_crlf = false);
 size_t dispatch_lines(char* buf, size_t buf_size, FILE* stream, function<void(const char*, size_t, size_t)> callback);
 
 size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRecord_t* records, size_t* record_idx, function<void(FastxRecord_t*, size_t)>& callback);

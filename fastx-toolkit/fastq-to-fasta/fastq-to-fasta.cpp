@@ -29,7 +29,8 @@ static FastxContext_t fastx_ctx;
 static FastxRecord_t fastx_record;
 
 /* internal variables */
-static size_t out_buf_pos = 0;
+static uint64_t out_buf_pos = 0;
+static string rec_buf;
 static size_t total_bytes_written = 0;
 
 void valid_args()
@@ -37,13 +38,12 @@ void valid_args()
 	bool result = true;
 
 	result &= in_buf_size > 0 && out_buf_size > 0;
-	result &= out_buf_size >= fastx_ctx.max_seq_len;
 	result &= fastx_ctx.max_seq_len > 0;
+	result &= in_buf_size >= fastx_ctx.max_seq_len;
 
 	if (!result)
 		throw invalid_argument("Invalid arguments");
 }
-
 
 void parse_args(int argc, char** argv)
 {
@@ -93,7 +93,7 @@ void alloc_bufs()
 	fastx_record.seq_id = new char[fastx_ctx.max_seq_len];
 	fastx_record.seq = new char[fastx_ctx.max_seq_len];
 
-	fastx_record.qual = new char[fastx_ctx.max_seq_len];
+	rec_buf.reserve(MAX_SEQUENCE_LENGTH * RECORD_MEMBER_COUNTS[static_cast<uint8_t>(FileFormat::FILE_FORMAT_FASTA)] + 2);
 }
 
 void free_bufs()
@@ -125,16 +125,32 @@ void flush_out_buf()
 	out_buf_pos = 0;
 }
 
-void print_to_out_buf(size_t print_size, const char* format, ...)
+void write_rec(const string& rec)
 {
-	va_list args;
-	va_start(args, format);
+	size_t curr_pos = 0;
+	size_t remaining_size = rec.size();
 
-	if (out_buf_pos + print_size >= out_buf_size)
-		flush_out_buf();
+	while (remaining_size > 0)
+	{
+		size_t copy_size = remaining_size <= out_buf_size ? remaining_size : out_buf_size;
 
-	vsprintf(out_buf + out_buf_pos, format, args); 
-	out_buf_pos += print_size;
+		if (copy_size + out_buf_pos >= out_buf_size)
+			copy_size = out_buf_size - out_buf_pos;
+
+		copy(rec.begin() + curr_pos, rec.begin() + curr_pos + copy_size, out_buf + out_buf_pos);
+
+		remaining_size = remaining_size >= copy_size ? remaining_size - copy_size : copy_size - remaining_size;
+		out_buf_pos += copy_size;
+		curr_pos += copy_size;
+
+		if (out_buf_pos == out_buf_size)
+			flush_out_buf();
+	}
+}
+
+void append_line_break(string& str)
+{
+	str += LINE_FEED;
 }
 
 void process_record(FastxRecord_t* record, size_t record_idx)
@@ -143,11 +159,20 @@ void process_record(FastxRecord_t* record, size_t record_idx)
 		return;
 
 	if (rename_seq_id)
-		print_to_out_buf(sizeof(size_t) + 1, "%" PRIu64 "\n", total_bytes_written + 1);
+		rec_buf += to_string(total_bytes_written + 1);
 	else
-		print_to_out_buf(record->seq_id_len + 1, "%s\n", record->seq_id);
+	{
+		rec_buf += FILE_SIGNATURES[static_cast<uint8_t>(FileFormat::FILE_FORMAT_FASTA)]; // Append FASTA signature
+		rec_buf += record->seq_id + 1; // Skip FASTQ signature
+		append_line_break(rec_buf);
+	}
 
-	print_to_out_buf(record->seq_len + 1, "%s\n", record->seq);
+	rec_buf += record->seq;
+	append_line_break(rec_buf);
+
+	write_rec(rec_buf);
+	rec_buf.clear();
+
 	total_bytes_written += record->read_count;
 }
 

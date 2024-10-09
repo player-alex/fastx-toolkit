@@ -57,14 +57,12 @@ uint32_t get_read_count(FastxContext_t* ctx, char* seq_id, size_t len)
 	return result ? result : 1;
 }
 
-size_t fwrite_with_line(const void* buf, size_t elem_size, size_t elem_count, FILE* stream)
+size_t fwrite_with_line(const void* buf, size_t elem_size, size_t elem_count, FILE* stream, bool use_crlf)
 {
 	size_t num_written_bytes = fwrite(buf, elem_size, elem_count, stream);
+	num_written_bytes += fwrite(use_crlf ? "\r\n" : "\n", sizeof(char), use_crlf ? 2 : 1, stream);
 
-	if (fputc(LINE_FEED, stream) != LINE_FEED)
-		throw runtime_error(format("Failed to written({}): {}, {}", EOF, elem_size, elem_count));
-
-	return num_written_bytes + 1;
+	return use_crlf ? num_written_bytes + 2 : num_written_bytes + 1;
 }
 
 size_t dispatch_lines(char* buf, size_t buf_size, FILE* stream, function<void(const char*, size_t, size_t)> callback)
@@ -123,7 +121,7 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 		while (prev_eol < buf + num_read_bytes)
 		{
 			char* next_member_buf = nullptr;
-			size_t adv_count = 0;
+			size_t adv_offset = 0;
 			size_t len = 0;
 
 			next_eol = strchr(prev_eol, LINE_FEED);
@@ -132,14 +130,14 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 				break;
 
 			if (prev_eol + 2 <= next_eol && *(next_eol - 1) == CARRIAGE_RETN)
-				adv_count = 1;
+				adv_offset = 1;
 
 			line_offset = ctx->total_read_lines % member_count;
 			next_member_buf = reinterpret_cast<char**>(&records[*record_idx])[line_offset];
 
 			if (next_member_buf)
 			{
-				len = next_eol - prev_eol - adv_count;
+				len = next_eol - prev_eol - adv_offset;
 
 				if (len >= ctx->max_seq_len)
 					throw out_of_range(format("Line length out of range: curr: {}, max: {}", len, ctx->max_seq_len));
@@ -157,8 +155,8 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 				++ctx->total_read_records;
 			}
 
-			num_proc_bytes += next_eol - prev_eol + 1 + adv_count;
-			prev_eol = next_eol + 1 + adv_count;
+			num_proc_bytes += next_eol - prev_eol + 1;
+			prev_eol = next_eol + 1;
 			++ctx->total_read_lines;
 		}
 	}

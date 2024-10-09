@@ -22,20 +22,25 @@ static const char* PROLOGUE = "";
 static const char* EPILOGUE = "";
 
 /* I/O variables */
-static size_t out_buf_size = 32768;
-static uint8_t* out_buf;
 static FILE* out_fp = stdout;
+static char* out_buf;
+static uint64_t out_buf_pos = 0;
 
 /* Argument variables */
 static FileFormat file_format = FileFormat::FILE_FORMAT_UNKNOWN;
 static int num_records = 0;
 static bool collapse_record = false;
+static bool use_crlf = false;
 static string out_name;
+
 static char base_qual_offset = BASE_QUALITY_OFFSET;
 static char min_qual = MIN_QUALITY;
 static char max_qual = MAX_QUALITY;
+
 static int min_seq_len = 1;
 static int max_seq_len = 50;
+
+static size_t out_buf_size = 32768;
 
 /* Random variables */
 static random_device rd;
@@ -72,6 +77,7 @@ void parse_args(int argc, char** argv)
 
 	args::ValueFlag<int> nr_arg(parser, "nr", "number of records", { "nr" }, num_records, args::Options::Required);
 	args::Flag cr_arg(parser, "cr", "collapse record. only supported to fastq", { 'c' }, collapse_record);
+	args::Flag use_crlf_arg(parser, "crlf", format("use crlf. default is {}", use_crlf), { "crlf" }, use_crlf);
 	args::ValueFlag<string> out_arg(parser, "out", "output file name. default is STDOUT", { 'o' }, out_name);
 
 	args::Group qual_group(parser, "Quality");
@@ -83,6 +89,9 @@ void parse_args(int argc, char** argv)
 	args::ValueFlag<int> mns_arg(seq_group, "mns", format("min seq length. default is {}", min_seq_len), { "mns" }, min_seq_len);
 	args::ValueFlag<int> mxs_arg(seq_group, "mxs", format("max seq length. maximum length is {}. default is {}", MAX_SEQUENCE_LENGTH, max_seq_len), { "mxs" }, max_seq_len);
 
+	args::Group io_tuning_group(parser, "I/O Tuning");
+	args::ValueFlag<size_t> obufs_arg(io_tuning_group, "obufs", format("output buffer size. default is {}", out_buf_size), { "obufs" }, out_buf_size);
+
 	try
 	{
 		parser.ParseCLI(argc, argv);
@@ -90,6 +99,7 @@ void parse_args(int argc, char** argv)
 		file_format = args::get(sf_arg);
 		num_records = args::get(nr_arg);
 		collapse_record = args::get(cr_arg);
+		use_crlf = args::get(use_crlf_arg);
 		out_name = args::get(out_arg);
 
 		base_qual_offset = args::get(bq_arg);
@@ -98,6 +108,8 @@ void parse_args(int argc, char** argv)
 
 		min_seq_len = args::get(mns_arg);
 		max_seq_len = args::get(mxs_arg);
+
+		out_buf_size = args::get(obufs_arg);
 
 		valid_args();
 	}
@@ -111,7 +123,7 @@ void parse_args(int argc, char** argv)
 
 void alloc_bufs()
 {
-	out_buf = new uint8_t[out_buf_size];
+	out_buf = new char[out_buf_size];
 }
 
 void free_bufs()
@@ -164,41 +176,78 @@ void gen_qual(string& qual, size_t qual_len)
 	append_rand_chars(qual, qual_len, qual_dist);
 }
 
-void gen_records()
+void flush_out_buf()
 {
-	string seq_id;
-	string seq;
-	string desc = "+"; // FIXED
-	string qual;
+	fwrite(out_buf, sizeof(char), out_buf_pos, out_fp);
+	out_buf_pos = 0;
+}
 
-	seq_id.reserve(MAX_SEQUENCE_LENGTH);
-	seq.reserve(MAX_SEQUENCE_LENGTH);
-	qual.reserve(MAX_SEQUENCE_LENGTH);
+void write_rec(const string& rec)
+{
+	size_t curr_pos = 0;
+	size_t remaining_size = rec.size();
+
+	while (remaining_size > 0)
+	{
+		size_t copy_size = remaining_size <= out_buf_size ? remaining_size : out_buf_size;
+		
+		if (copy_size + out_buf_pos >= out_buf_size)
+			copy_size = out_buf_size - out_buf_pos;
+
+		copy(rec.begin() + curr_pos, rec.begin() + curr_pos + copy_size, out_buf + out_buf_pos);
+
+		remaining_size = remaining_size >= copy_size ? remaining_size - copy_size : copy_size - remaining_size;
+		out_buf_pos += copy_size;
+		curr_pos += copy_size;
+
+		if(out_buf_pos == out_buf_size)
+			flush_out_buf();
+	}
+}
+
+void append_line_break(string& str)
+{
+	const string new_line = use_crlf ? "\r\n" : "\n";
+	str += new_line;
+}
+
+void gen_recs()
+{
+	string rec_buf;
+	size_t rec_buf_size = 0;
+	uint8_t rec_mem_cnt = RECORD_MEMBER_COUNTS[static_cast<uint8_t>(file_format)];
+
+	rec_buf_size = MAX_SEQUENCE_LENGTH * rec_mem_cnt;
+	rec_buf_size += static_cast<size_t>(use_crlf ? 2 : 1) * rec_mem_cnt;
+	rec_buf.reserve(rec_buf_size);
 
 	seq_len_dist.param(uniform_int_distribution<>::param_type(min_seq_len, max_seq_len));
 	qual_dist.param(uniform_int_distribution<>::param_type(base_qual_offset - min_qual, base_qual_offset + max_qual));
-	
+
 	for (int i = 0; i < num_records; ++i)
 	{
 		int seq_len = seq_len_dist(mt);
-		gen_seq_id(seq_id, i, seq_len);
-		gen_seq(seq, seq_len);
 
-		fwrite_with_line(seq_id.c_str(), sizeof(char), seq_id.size(), out_fp);
-		fwrite_with_line(seq.c_str(), sizeof(char), seq.size(), out_fp);
+		gen_seq_id(rec_buf, i, seq_len);
+		append_line_break(rec_buf);
+
+		gen_seq(rec_buf, seq_len);
+		append_line_break(rec_buf);
 
 		if (file_format == FileFormat::FILE_FORMAT_FASTQ)
 		{
-			gen_qual(qual, seq_len);
-			fwrite_with_line(desc.c_str(), sizeof(char), desc.size(), out_fp);
-			fwrite_with_line(qual.c_str(), sizeof(char), qual.size(), out_fp);
+			rec_buf += '+';
+			append_line_break(rec_buf);
 
-			qual.clear();
+			gen_qual(rec_buf, seq_len);
+			append_line_break(rec_buf);
 		}
 
-		seq_id.clear();
-		seq.clear();
+		write_rec(rec_buf);
+		rec_buf.clear();
 	}
+
+	flush_out_buf();
 }
 
 int main(int argc, char** argv)
@@ -211,7 +260,7 @@ int main(int argc, char** argv)
 		open_file(out_name.c_str(), "wb", &out_fp);
 		alloc_bufs();
 
-		gen_records();
+		gen_recs();
 
 		free_bufs();
 		close_file(out_fp);

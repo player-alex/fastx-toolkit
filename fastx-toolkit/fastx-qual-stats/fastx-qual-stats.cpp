@@ -71,8 +71,8 @@ void valid_args()
 	bool result = true;
 
 	result &= min_qual < max_qual;
-	result &= in_buf_size > 0;
 	result &= fastx_ctx.max_seq_len > 0;
+	result &= in_buf_size > 0 && in_buf_size >= fastx_ctx.max_seq_len;
 
 	if (!result)
 		throw invalid_argument("Invalid arguments");
