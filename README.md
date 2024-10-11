@@ -8,9 +8,11 @@ It provides improved performance through 3 ways:
 1. `Buffering`
 2. `OpenMP`
 3. `CUDA`
+4. `Cluster`
 
 All tools use buffering by default.  
-`OpenMP` and `CUDA` versions also use buffering by default.
+`OpenMP`, `CUDA`, `Cluster` versions also use buffering by default.
+`Cluster` versions based on `OpenMP`.
 
 # Features
 - [x] FASTQ-TO-FASTA
@@ -18,10 +20,11 @@ All tools use buffering by default.
 	- [x] [Buffering](fastx-toolkit/fastx-qual-stats)
 	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
 	- [ ] [CUDA](fastx-toolkit/fastx-qual-stats-cuda)
+	- [ ] [Cluster](fastx-toolkit/fastx-qual-stats-cluster)
 - [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
 # Usage
-`FASTQ-TO-FASTA`
+`FASTQ-TO-FASTA: Convert FASTQ file to FASTA`
 |  Option  | Description | Default | Range | 
 |:--------:|:-----------:|:-------:|:-----:|
 | -h       | print help  |         |       |
@@ -33,7 +36,7 @@ All tools use buffering by default.
 | -\-obufs | set output buffer size | 32768 | > 0 |
 | -\-mxsl  | set maximum sequence length | 25000 | > 0 |
 
-`FASTX Sample Generator`
+`FASTX Sample Generator: Generate FASTX sample`
 |  Option  | Description | Default | Range | 
 |:--------:|:-----------:|:-------:|:-----:|
 | -h        | print help  |         |       |
