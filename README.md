@@ -15,7 +15,7 @@ All tools use buffering by default.
 `Cluster` versions based on `OpenMP`.
 
 # Features
-- [x] FASTQ-TO-FASTA
+- [x] [FASTQ-TO-FASTA](fastx-toolkit/fastq-to-fasta)
 - [ ] FASTX Statistics
 	- [x] [Buffering](fastx-toolkit/fastx-qual-stats)
 	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
