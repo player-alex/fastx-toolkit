@@ -149,7 +149,8 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 
 			if (line_offset == member_count - 1)
 			{
-				records[*record_idx].read_count = get_read_count(ctx, records->seq_id, records->seq_len);
+				records[*record_idx].read_count = get_read_count(ctx, records[*record_idx].seq_id, records[*record_idx].seq_len);
+				ctx->total_seq_count += records[*record_idx].seq_len;
 				callback(&records[*record_idx], num_proc_records);
 				++num_proc_records;
 				++ctx->total_read_records;

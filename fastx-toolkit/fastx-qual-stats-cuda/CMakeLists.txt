@@ -15,7 +15,8 @@ File(GLOB_RECURSE SOURCES_HXX "${CMAKE_CURRENT_LIST_DIR}/.*hxx")
 
 add_executable(${PRJ_NAME} ${CUDA_SOURCES})
 
-target_link_libraries(${PRJ_NAME} PRIVATE ${LIB_FASTX})
 target_include_directories(${PRJ_NAME} PRIVATE "../${LIB_FASTX}")
+target_link_libraries(${PRJ_NAME} PRIVATE ${LIB_FASTX})
 
+target_include_directories(${PRJ_NAME} PRIVATE "../fmt/include")
 target_link_libraries(${PRJ_NAME} PRIVATE fmt::fmt)

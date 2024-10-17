@@ -36,6 +36,7 @@ typedef struct FastxContext_s
 	size_t max_seq_len = MAX_SEQUENCE_LENGTH;
 	size_t total_read_lines = 0;
 	size_t total_read_records = 0;
+	size_t total_seq_count = 0;
 } FastxContext_t;
 
 typedef struct FastxRecord_s
