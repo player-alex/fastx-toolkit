@@ -24,6 +24,8 @@ All tools use buffering by default.
 - [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
 # Usage
+You can see help message when you execute program with "-h" flag.  
+
 `FASTQ-TO-FASTA: Convert FASTQ file to FASTA`
 |  Option  | Description | Default | Range | 
 |:--------:|:-----------:|:-------:|:-----:|
