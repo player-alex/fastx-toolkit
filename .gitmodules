@@ -1,0 +1,3 @@
+[submodule "fastx-toolkit/fmt"]
+	path = fastx-toolkit/fmt
+	url = https://github.com/fmtlib/fmt.git
