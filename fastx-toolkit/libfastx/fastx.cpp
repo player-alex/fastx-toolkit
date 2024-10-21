@@ -82,7 +82,7 @@ size_t dispatch_lines(char* buf, size_t buf_size, FILE* stream, function<void(co
 		while (prev_eol < buf + num_read_bytes)
 		{
 			size_t adv_count = 0;
-			next_eol = strchr(prev_eol, LINE_FEED);
+			next_eol = reinterpret_cast<char*>(memchr(prev_eol, LINE_FEED, num_read_bytes - num_proc_bytes));
 
 			if (!next_eol)
 				break;
@@ -124,7 +124,7 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 			size_t adv_offset = 0;
 			size_t len = 0;
 
-			next_eol = strchr(prev_eol, LINE_FEED);
+			next_eol = reinterpret_cast<char*>(memchr(prev_eol, LINE_FEED, num_read_bytes - num_proc_bytes));
 
 			if (!next_eol)
 				break;
