@@ -24,10 +24,9 @@ All tools use buffering by default.
 - [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
 # Notice
-The "Buffering" does not used in C runtime file i/o directly.  
-Because C runtime file i/o has an internal i/o buffer, the size of which is determined as shown in the following pseudo code:
+The C Runtime has an internal i/o buffer, the size of which is determined as shown in the following pseudo code:
 
-```Pseudo
+```pseudo
 /* from glibc */
 
 DiskBlockSize = GetDiskBlockSize()
@@ -36,25 +35,32 @@ if DiskBlockSize > 0 && INTERNAL_NO_ERROR
 	InternalBufferSize = DiskBlockSize
 else
 	InternalBufferSize = 1024
+
+InternalBuffer = new[InternalBufferSize]
 ```
 
-When you use C standard file i/o functions, like fgets, fread etc...  
-A memory copy occurs inside the function, as shown in the following pseudocode:
+And when you use i/o functions, like fgets, fread etc...  
+A memory copy occurs inside the function, as shown in the following pseudo code:
 
-```
+```pseudo
 /* from glibc */
 
-any fread(user_defined_buffer, user_defined_buffer_size <- i/obufs)
+fread(user_defined_buffer, user_defined_buffer_size <- i/obufs)
 {
-	num_read_bytes = fread_internal(internal_buffer, internal_buffer_size);
+	num_read_bytes = fread_internal(internal_buffer, internal_buffer_size)
+
+	...
 
 	if(num_read_bytes > 0)
-		memcpy(user_defined_buffer, internal_buffer, num_read_bytes);
+		memcpy(user_defined_buffer, internal_buffer, num_read_bytes)
 }
+
 ```
 
-This means file i/o performance is depend on your disk block size.  
-So `i/obufs` is not directly applied to C runtime file i/o.
+Even if you explicitly set a large buffer size, performance is still fundamentally dependent on the block size of the disk.  
+If you set the buffer size too large, the execution time may actually be longer due to the instructions used inside fread.  
+Therefore, you need to experiment to find the optimal buffer size for your system.
+
 
 # Usage
 You can see help message when you execute program with "-h" flag.  
