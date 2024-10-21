@@ -28,7 +28,6 @@ The "Buffering" does not used in C runtime file i/o directly.
 Because C runtime file i/o has an internal i/o buffer, the size of which is determined as shown in the following pseudo code:
 
 ```Pseudo
-
 /* from glibc */
 
 DiskBlockSize = GetDiskBlockSize()
@@ -37,14 +36,12 @@ if DiskBlockSize > 0 && INTERNAL_NO_ERROR
 	InternalBufferSize = DiskBlockSize
 else
 	InternalBufferSize = 1024
-
 ```
 
 When you use C standard file i/o functions, like fgets, fread etc... 
 A memory copy occurs inside the function, as shown in the following pseudocode:
 
 ```
-
 /* from glibc */
 
 any fread(user_defined_buffer, user_defined_buffer_size <- i/obufs)
@@ -54,7 +51,6 @@ any fread(user_defined_buffer, user_defined_buffer_size <- i/obufs)
 	if(num_read_bytes > 0)
 		memcpy(user_defined_buffer, internal_buffer, num_read_bytes);
 }
-
 ```
 
 This means file i/o performance is depend on your disk block size.
