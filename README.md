@@ -24,7 +24,7 @@ All tools use buffering by default.
 - [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
 # Notice
-The "Buffering" does not used in C runtime file i/o directly.
+The "Buffering" does not used in C runtime file i/o directly.  
 Because C runtime file i/o has an internal i/o buffer, the size of which is determined as shown in the following pseudo code:
 
 ```Pseudo
@@ -38,7 +38,7 @@ else
 	InternalBufferSize = 1024
 ```
 
-When you use C standard file i/o functions, like fgets, fread etc... 
+When you use C standard file i/o functions, like fgets, fread etc...  
 A memory copy occurs inside the function, as shown in the following pseudocode:
 
 ```
@@ -53,7 +53,7 @@ any fread(user_defined_buffer, user_defined_buffer_size <- i/obufs)
 }
 ```
 
-This means file i/o performance is depend on your disk block size.
+This means file i/o performance is depend on your disk block size.  
 So `i/obufs` is not directly applied to C runtime file i/o.
 
 # Usage
