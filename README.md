@@ -5,62 +5,28 @@ This project is based on [agordon/fastx_toolkit](https://github.com/agordon/fast
 Goal of project is improve processing performance.  
 It provides improved performance through 3 ways:
 
-1. `Buffering`
+1. `Block-Based I/O`
 2. `OpenMP`
 3. `CUDA`
 4. `Cluster`
 
-All tools use buffering by default.  
-`OpenMP`, `CUDA`, `Cluster` versions also use buffering by default.
+All tools use Block-Based I/O by default.  
+`OpenMP`, `CUDA`, `Cluster` versions also use Block-Based I/O by default.
 `Cluster` versions based on `OpenMP`.
 
 # Features
 - [x] [FASTQ-TO-FASTA](fastx-toolkit/fastq-to-fasta)
 - [ ] FASTX Statistics
-	- [x] [Buffering](fastx-toolkit/fastx-qual-stats)
+	- [x] [Block-Based I/O](fastx-toolkit/fastx-qual-stats)
 	- [x] [OpenMP](fastx-toolkit/fastx-qual-stats-omp)
 	- [ ] [CUDA](fastx-toolkit/fastx-qual-stats-cuda)
 	- [ ] [Cluster](fastx-toolkit/fastx-qual-stats-cluster)
 - [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
-# Notice
-The C Runtime has an internal i/o buffer, the size of which is determined as shown in the following pseudo code:
-
-```pseudo
-/* from glibc */
-
-DiskBlockSize = GetDiskBlockSize()
-
-if DiskBlockSize > 0 && INTERNAL_NO_ERROR
-	InternalBufferSize = DiskBlockSize
-else
-	InternalBufferSize = 1024
-
-InternalBuffer = new[InternalBufferSize]
-```
-
-And when you use i/o functions, like fgets, fread etc...  
-A memory copy occurs inside the function, as shown in the following pseudo code:
-
-```pseudo
-/* from glibc */
-
-fread(user_defined_buffer, user_defined_buffer_size <- i/obufs)
-{
-	num_read_bytes = fread_internal(internal_buffer, internal_buffer_size)
-
-	...
-
-	if(num_read_bytes > 0)
-		memcpy(user_defined_buffer, internal_buffer, num_read_bytes)
-}
-
-```
-
-Even if you explicitly set a large buffer size, performance is still fundamentally dependent on the block size of the disk.  
-If you set the buffer size too large, the execution time may actually be longer due to the instructions used inside fread.  
-Therefore, you need to experiment to find the optimal buffer size for your system.
-
+# Tips
+1. Set In/Out Buffer Size
+I/O performance is fundamentally dependent on the disk's block size.
+So you need to experiment to find the optimal buffer size.
 
 # Usage
 You can see help message when you execute program with "-h" flag.  
@@ -92,7 +58,7 @@ You can see help message when you execute program with "-h" flag.
 | -\-mxs    | set max seq length | 50 | >= MNS |
 | -\-obufs  | set output buffer size | 32768 | > 0 |
 
-`FASTX Statistics(Buffering)`
+`FASTX Statistics(Block-Based I/O)`
 |  Option  | Description | Default | Range | 
 |:--------:|:-----------:|:-------:|:-----:|
 | -h       | print help  |         |       |
@@ -123,7 +89,7 @@ Method: TAKE MINS & ROUND
 
 ![Performance Comparison](fastx-toolkit/tests/results/fastx-statistics.png)
 
-| Record Size | Old (ms) | Buffering (ms) | OpenMP (ms) | Buffering Speedup (%) | OpenMP Speedup (%) | OpenMP vs Buffering Increase (%) |
+| Record Size | Old (ms) | Block-Based I/O (ms) | OpenMP (ms) | Block-Based I/O Speedup (%) | OpenMP Speedup (%) | OpenMP vs Block-Based I/O Increase (%) |
 |:-----------:|:--------:|:--------------:|:-----------:|:---------------------:|:-------------------:|:--------------------------------:|
 | 1M          | 5259     | 865            | 533         | 83.6                  | 89.9                | 38.4                             |
 | 2.5M        | 12974    | 2123           | 1247        | 83.7                  | 90.4                | 41.0                             |

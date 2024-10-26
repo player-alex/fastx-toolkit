@@ -20,8 +20,8 @@ fig, ax = plt.subplots(figsize=(10, 6), dpi=300)
 
 # 각 데이터 추가 (시인성이 좋은 색상 선택)
 bars1 = ax.bar(x - width, old_values, width, label='Old', color='#1f77b4')  # 파란색
-bars2 = ax.bar(x, buffering_values, width, label='Buffering', color='#ff7f0e')  # 주황색
-bars3 = ax.bar(x + width, openmp_values, width, label='OpenMP', color='#2ca02c')  # 초록색
+bars2 = ax.bar(x, buffering_values, width, label='Block-Based I/O', color='#ff7f0e')  # 주황색
+bars3 = ax.bar(x + width, openmp_values, width, label='Block-Based I/O + OpenMP', color='#2ca02c')  # 초록색
 
 # 바 위에 수치 추가
 def add_value_labels(bars):
