@@ -24,9 +24,9 @@ All tools use Block-Based I/O by default.
 - [x] [FASTX Sample Generator](fastx-toolkit/fastx-samp-gen)
 
 # Tips
-1. Set In/Out Buffer Size
-I/O performance is fundamentally dependent on the disk's block size.
-So you need to experiment to find the optimal buffer size.
+### 1. Set In/Out Buffer Size
+I/O performance is fundamentally dependent on the disk's block size.  
+So you need to experiment to find the optimal buffer size.  
 
 # Usage
 You can see help message when you execute program with "-h" flag.  
