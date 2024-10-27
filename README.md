@@ -3,12 +3,12 @@
 # FASTX-Toolkit
 This project is based on [agordon/fastx_toolkit](https://github.com/agordon/fastx_toolkit)  
 Goal of project is improve processing performance.  
-It provides improved performance through 3 ways:
+It provides improved performance through 4 ways:
 
 1. `Block-Based I/O`
 2. `OpenMP`
-3. `CUDA`
-4. `Cluster`
+3. `CUDA(Planned)`
+4. `Cluster(Planned)`
 
 All tools use Block-Based I/O by default.  
 `OpenMP`, `CUDA`, `Cluster` versions also use Block-Based I/O by default.
