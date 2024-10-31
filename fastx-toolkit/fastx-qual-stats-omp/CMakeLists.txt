@@ -11,7 +11,10 @@ find_package(OpenMP REQUIRED)
 
 if(OpenMP_CXX_FOUND)
     target_link_libraries(${PRJ_NAME} PRIVATE OpenMP::OpenMP_CXX)
-    target_compile_options(${PRJ_NAME} PRIVATE "/openmp:llvm")
+    
+    if(WIN32)
+        target_compile_options(${PRJ_NAME} PRIVATE "/openmp:llvm")
+    endif()
 endif()
 
 target_link_libraries(${PRJ_NAME} PRIVATE ${LIB_NAME})
