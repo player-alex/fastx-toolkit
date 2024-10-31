@@ -84,7 +84,7 @@ You can see help message when you execute program with "-h" flag.
 | -\-rps   | record pool size | 500 ||
 
 # Benchmarks
-Device: GA403UI-QS091, Windows
+Device: GA403UI-QS091, Windows  
 Method: TAKE MINS & ROUND
 
 ![Performance Comparison](fastx-toolkit/tests/results/fastx-statistics.png)
