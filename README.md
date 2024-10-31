@@ -84,7 +84,7 @@ You can see help message when you execute program with "-h" flag.
 | -\-rps   | record pool size | 500 ||
 
 # Benchmarks
-Device: GA403UI-QS091  
+Device: GA403UI-QS091, Windows
 Method: TAKE MINS & ROUND
 
 ![Performance Comparison](fastx-toolkit/tests/results/fastx-statistics.png)
@@ -98,3 +98,5 @@ Method: TAKE MINS & ROUND
 | 30M         | 157420   | 24489          | 13411       | 84.4                  | 91.5                | 45.3                             |
 | 50M         | 262089   | 40974          | 21974       | 84.4                  | 91.6                | 46.4                             |
 | 100M        | 528681   | 85367          | 52954       | 83.8                  | 89.9                | 38.0                             |
+
+On Linux(Ubuntu 24.04), will see a roughly 3-5x performance difference.  

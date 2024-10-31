@@ -65,54 +65,16 @@ size_t fwrite_with_line(const void* buf, size_t elem_size, size_t elem_count, FI
 	return use_crlf ? num_written_bytes + 2 : num_written_bytes + 1;
 }
 
-size_t dispatch_lines(char* buf, size_t buf_size, FILE* stream, function<void(const char*, size_t, size_t)> callback)
-{
-	size_t line_idx = 0;
-#ifdef _MSC_VER
-	size_t num_read_bytes = fread_s(buf, buf_size, sizeof(char), buf_size, stream);
-#else
-	size_t num_read_bytes = fread(buf, sizeof(char), buf_size, stream);
-#endif
-	size_t num_proc_bytes = 0;
-	char* prev_eol = buf;
-	char* next_eol = nullptr;
-
-	if (num_read_bytes > 0)
-	{
-		while (prev_eol < buf + num_read_bytes)
-		{
-			size_t adv_count = 0;
-			next_eol = reinterpret_cast<char*>(memchr(prev_eol, LINE_FEED, num_read_bytes - num_proc_bytes));
-
-			if (!next_eol)
-				break;
-
-			if (prev_eol + 2 <= next_eol && *(next_eol - 1) == CARRIAGE_RETN)
-				adv_count = 1;
-
-			callback(prev_eol, next_eol - prev_eol - adv_count, line_idx);
-			num_proc_bytes += next_eol - prev_eol + 1;
-			prev_eol = next_eol + 1;
-			++line_idx;
-		}
-	}
-
-	fseek(stream, -static_cast<long>(num_read_bytes - num_proc_bytes), SEEK_CUR);
-
-	return num_proc_bytes;
-}
-
-size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRecord_t* records, size_t* record_idx, function<void(FastxRecord_t*, size_t)>& callback)
+DispatchResult_t dispatch_records(char* buf, size_t buf_size, size_t offset, FastxContext_t* ctx, FastxRecord_t* records, size_t* record_idx, function<void(FastxRecord_t*, size_t)>& callback)
 {
 	size_t member_count = RECORD_MEMBER_COUNTS[static_cast<int8_t>(ctx->format)];
 	size_t line_offset = 0;
-#ifdef _MSC_VER
-	size_t num_read_bytes = fread_s(buf, buf_size, sizeof(char), buf_size, ctx->in_stream);
-#else
-	size_t num_read_bytes = fread(buf, sizeof(char), buf_size, ctx->in_stream);
-#endif
+
+	size_t num_read_bytes = fread(buf + offset, sizeof(char), buf_size - offset, ctx->in_stream) + offset;
 	size_t num_proc_bytes = 0;
+	size_t num_rem_bytes = 0;
 	size_t num_proc_records = 0;
+
 	char* prev_eol = buf;
 	char* next_eol = nullptr;
 
@@ -162,7 +124,11 @@ size_t dispatch_records(char* buf, size_t buf_size, FastxContext_t* ctx, FastxRe
 		}
 	}
 
-	fseek(ctx->in_stream, -static_cast<long>(num_read_bytes - num_proc_bytes), SEEK_CUR);
+	if ((num_rem_bytes = num_read_bytes - num_proc_bytes) > 0)
+	{
+		copy(buf + num_proc_bytes, buf + num_read_bytes, buf);
+		buf[num_rem_bytes + 1] = '\0';
+	}
 
-	return num_proc_records;
+	return { num_read_bytes, num_proc_bytes, num_rem_bytes, num_proc_records };
 }

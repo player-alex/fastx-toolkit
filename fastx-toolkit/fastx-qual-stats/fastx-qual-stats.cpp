@@ -199,7 +199,7 @@ void process_record(FastxRecord_t* record, size_t record_idx)
 void read_records()
 {
 	size_t record_idx = 0; // FIXED: Receive only one record at each time.
-	size_t num_proc_records = 0;
+	DispatchResult_t result;
 	function<void(FastxRecord_t*, size_t)> callback = process_record;
 
 	if (fastx_ctx.format == FileFormat::FILE_FORMAT_UNKNOWN)
@@ -207,12 +207,14 @@ void read_records()
 
 	do
 	{
-		num_proc_records = dispatch_records(in_buf, in_buf_size, 
-											&fastx_ctx, 
-											&fastx_record,
-											&record_idx,
-											callback);
-	} while (num_proc_records);
+		result = dispatch_records(
+			in_buf, in_buf_size, result.num_rem_bytes,
+			&fastx_ctx, 
+			&fastx_record,
+			&record_idx,
+			callback);
+
+	} while (result.num_proc_bytes);
 }
 
 int64_t get_nth_value(uint64_t col_idx, uint8_t nuc_idx, uint64_t q)
