@@ -59,6 +59,8 @@ static char max_qual = MAX_QUALITY;
 
 static size_t in_buf_size = 32768;
 static size_t record_pool_size = 500;
+static size_t num_threads = static_cast<size_t>(omp_get_max_threads());
+static bool dynamic_threads = static_cast<bool>(omp_get_dynamic());
 
 /* Statistics variables */
 static ColumnStatistics* col_stats;
@@ -80,6 +82,7 @@ void valid_args()
 	result &= fastx_ctx.max_seq_len > 0;
 	result &= in_buf_size > 0 && in_buf_size >= fastx_ctx.max_seq_len;
 	result &= record_pool_size > 0;
+	result &= num_threads > 0;
 
 	if (!result)
 		throw invalid_argument("Invalid arguments");
@@ -106,6 +109,8 @@ void parse_args(int argc, char** argv)
 	args::ValueFlag<size_t> ibufs_arg(io_tuning_group, "ibufs", format("input buffer size. default is {}", in_buf_size), { "ibufs" }, in_buf_size);
 	args::ValueFlag<size_t> mxsl_arg(io_tuning_group, "mxsl", format("max sequence length. default is {}", fastx_ctx.max_seq_len), { "mxsl" }, fastx_ctx.max_seq_len);
 	args::ValueFlag<size_t> rps_arg(io_tuning_group, "rps", format("record pool size. default is {}", record_pool_size), { "rps" }, record_pool_size);
+	args::ValueFlag<size_t> ths_arg(io_tuning_group, "ths", format("number of threads. default is {}", num_threads), { "ths" }, num_threads);
+	args::Flag omp_dyn_arg(io_tuning_group, "dyn", format("dynamic threads. default is {}", dynamic_threads), { "dyn" }, dynamic_threads);
 
 	try
 	{
@@ -123,7 +128,9 @@ void parse_args(int argc, char** argv)
 		in_buf_size = args::get(ibufs_arg);
 		fastx_ctx.max_seq_len = args::get(mxsl_arg);
 		record_pool_size = args::get(rps_arg);
-		
+		num_threads = args::get(ths_arg);
+		dynamic_threads = omp_dyn_arg;
+
 		valid_args();
 	}
 	catch (const exception& e)
@@ -141,6 +148,12 @@ void init_vals()
 		nuc_idxs[NUC_CHARS[i]] = i;
 		nuc_idxs[tolower(NUC_CHARS[i])] = i;
 	}
+}
+
+void set_omp_opts()
+{
+	omp_set_num_threads(static_cast<int>(num_threads));
+	omp_set_dynamic(static_cast<int>(dynamic_threads));
 }
 
 void alloc_bufs()
@@ -406,6 +419,7 @@ int main(int argc, char** argv)
 	{
 		ios::sync_with_stdio(false);
 		parse_args(argc, argv);
+		set_omp_opts();
 		init_vals();
 
 		alloc_bufs();
