@@ -82,6 +82,8 @@ You can see help message when you execute program with "-h" flag.
 | -\-ibufs | set input buffer size | 32768 | IBUFS >= MXSL |
 | -\-mxsl  | set max sequence length | 25000 | > 0 |
 | -\-rps   | record pool size | 500 ||
+| -\-ths   | number of threads | System default ||
+| -|-dyn   | dynamic threads  | False ||
 
 # Benchmarks
 Device: GA403UI-QS091, Windows  
