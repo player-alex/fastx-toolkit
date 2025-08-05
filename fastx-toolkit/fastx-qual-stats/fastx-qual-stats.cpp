@@ -184,8 +184,15 @@ void update_nuc_statistics(size_t col_idx, uint8_t nuc_idx, int qual, size_t rea
 	}
 }
 
+void print_record_info(FastxRecord_t* record, size_t record_idx) {
+	std::cout << format("[{}] {}, {}, {}, {}\n", record_idx, 
+		record->seq_id_len, record->seq_len, record->qual_len, record->read_count);
+}
+
 void process_record(FastxRecord_t* record, size_t record_idx)
 {
+	print_record_info(record, record_idx);
+
 	for (size_t i = 0; i < record->seq_len; ++i)
 	{
 		char nuc = fastx_record.seq[i];
