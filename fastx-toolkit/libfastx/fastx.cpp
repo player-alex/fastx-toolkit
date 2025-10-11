@@ -82,6 +82,7 @@ DispatchResult_t dispatch_records(char* buf, size_t buf_size, size_t offset, Fas
 	{
 		while (prev_eol < buf + num_read_bytes)
 		{
+			std::unique_ptr<char[]>* next_member_u_buf = nullptr;
 			char* next_member_buf = nullptr;
 			size_t adv_offset = 0;
 			size_t len = 0;
@@ -95,7 +96,9 @@ DispatchResult_t dispatch_records(char* buf, size_t buf_size, size_t offset, Fas
 				adv_offset = 1;
 
 			line_offset = ctx->total_read_lines % member_count;
-			next_member_buf = reinterpret_cast<char**>(&records[*record_idx])[line_offset];
+			next_member_u_buf = reinterpret_cast<std::unique_ptr<char[]>**>(&records[*record_idx])[line_offset];
+			// next_member_u_buf = records[*record_idx][line_offset];
+			next_member_buf = next_member_u_buf ? next_member_u_buf->get() : nullptr;
 
 			if (next_member_buf)
 			{
@@ -111,7 +114,7 @@ DispatchResult_t dispatch_records(char* buf, size_t buf_size, size_t offset, Fas
 
 			if (line_offset == member_count - 1)
 			{
-				records[*record_idx].read_count = get_read_count(ctx, records[*record_idx].seq_id, records[*record_idx].seq_id_len);
+				records[*record_idx].read_count = get_read_count(ctx, records[*record_idx].seq_id.get(), records[*record_idx].seq_id_len);
 				ctx->total_seq_count += records[*record_idx].seq_len;
 				callback(&records[*record_idx], num_proc_records);
 				++num_proc_records;

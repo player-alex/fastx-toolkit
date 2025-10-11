@@ -7,15 +7,13 @@
 #include "args.hxx"
 #include "fastx.hpp"
 
-using namespace std;
-
 enum class Nucleotide : unsigned char
 {
 	ALL, A, C, G, T, N,
 	_NUCLEOTIDE_COUNT_
 };
 
-static const vector<char> NUC_CHARS = { '\0', 'A', 'C', 'G', 'T', 'N' };
+static const std::vector<char> NUC_CHARS = { '\0', 'A', 'C', 'G', 'T', 'N' };
 
 /* Argument parser constants */
 static const char* PROLOGUE = "";
@@ -31,7 +29,7 @@ static FileFormat file_format = FileFormat::FILE_FORMAT_UNKNOWN;
 static int num_records = 0;
 static bool collapse_record = false;
 static bool use_crlf = false;
-static string out_name;
+static std::string out_name;
 
 static char base_qual_offset = BASE_QUALITY_OFFSET;
 static char min_qual = MIN_QUALITY;
@@ -43,12 +41,12 @@ static int max_seq_len = 50;
 static size_t out_buf_size = 32768;
 
 /* Random variables */
-static random_device rd;
-static mt19937 mt(rd());
-static uniform_int_distribution<> alphabet_dist('A', 'Z');
-static uniform_int_distribution<> nuc_dist(static_cast<int>(Nucleotide::A), static_cast<int>(Nucleotide::N) - 1);
-static uniform_int_distribution<> seq_len_dist;
-static uniform_int_distribution<> qual_dist;
+static std::random_device rd;
+static std::mt19937 mt(rd());
+static std::uniform_int_distribution<> alphabet_dist('A', 'Z');
+static std::uniform_int_distribution<> nuc_dist(static_cast<int>(Nucleotide::A), static_cast<int>(Nucleotide::N) - 1);
+static std::uniform_int_distribution<> seq_len_dist;
+static std::uniform_int_distribution<> qual_dist;
 
 void valid_args()
 {
@@ -63,34 +61,34 @@ void valid_args()
 	result &= min_seq_len > 0 && max_seq_len > 0 && min_seq_len <= max_seq_len && max_seq_len <= MAX_SEQUENCE_LENGTH;
 
 	if (!result)
-		throw invalid_argument("Invalid arguments");
+		throw std::invalid_argument("Invalid arguments");
 }
 
 void parse_args(int argc, char** argv)
 {
 	args::ArgumentParser parser(PROLOGUE, EPILOGUE);
 
-	args::MapFlag<string, FileFormat> sf_arg(parser, "sf", "sample format: fasta or fastq", { 's', "sf" }, {
+	args::MapFlag<std::string, FileFormat> sf_arg(parser, "sf", "sample format: fasta or fastq", { 's', "sf" }, {
 		{ "fasta", FileFormat::FILE_FORMAT_FASTA },
 		{ "fastq", FileFormat::FILE_FORMAT_FASTQ }
 	}, args::Options::Required);
 
 	args::ValueFlag<int> nr_arg(parser, "nr", "number of records", { "nr" }, num_records, args::Options::Required);
 	args::Flag cr_arg(parser, "cr", "collapse record. only supported to fastq", { 'c' }, collapse_record);
-	args::Flag use_crlf_arg(parser, "crlf", format("use crlf. default is {}", use_crlf), { "crlf" }, use_crlf);
-	args::ValueFlag<string> out_arg(parser, "out", "output file name. default is STDOUT", { 'o' }, out_name);
+	args::Flag use_crlf_arg(parser, "crlf", std::format("use crlf. default is {}", use_crlf), { "crlf" }, use_crlf);
+	args::ValueFlag<std::string> out_arg(parser, "out", "output file name. default is STDOUT", { 'o' }, out_name);
 
 	args::Group qual_group(parser, "Quality");
-	args::ValueFlag<char> bq_arg(qual_group, "bq", format("base quality offset. default is {}", static_cast<int>(base_qual_offset)), { "bq" }, base_qual_offset);
-	args::ValueFlag<char> mnq_arg(qual_group, "mnq", format("min quality. default is {}", static_cast<int>(min_qual)), { "mnq" }, min_qual);
-	args::ValueFlag<char> mxq_arg(qual_group, "mxq", format("max quality. default is {}", static_cast<int>(max_qual)), { "mxq" }, max_qual);
+	args::ValueFlag<char> bq_arg(qual_group, "bq", std::format("base quality offset. default is {}", static_cast<int>(base_qual_offset)), { "bq" }, base_qual_offset);
+	args::ValueFlag<char> mnq_arg(qual_group, "mnq", std::format("min quality. default is {}", static_cast<int>(min_qual)), { "mnq" }, min_qual);
+	args::ValueFlag<char> mxq_arg(qual_group, "mxq", std::format("max quality. default is {}", static_cast<int>(max_qual)), { "mxq" }, max_qual);
 
 	args::Group seq_group(parser, "Sequence");
-	args::ValueFlag<int> mns_arg(seq_group, "mns", format("min seq length. default is {}", min_seq_len), { "mns" }, min_seq_len);
-	args::ValueFlag<int> mxs_arg(seq_group, "mxs", format("max seq length. max length is {}. default is {}", MAX_SEQUENCE_LENGTH, max_seq_len), { "mxs" }, max_seq_len);
+	args::ValueFlag<int> mns_arg(seq_group, "mns", std::format("min seq length. default is {}", min_seq_len), { "mns" }, min_seq_len);
+	args::ValueFlag<int> mxs_arg(seq_group, "mxs", std::format("max seq length. max length is {}. default is {}", MAX_SEQUENCE_LENGTH, max_seq_len), { "mxs" }, max_seq_len);
 
 	args::Group io_tuning_group(parser, "I/O Tuning");
-	args::ValueFlag<size_t> obufs_arg(io_tuning_group, "obufs", format("output buffer size. default is {}", out_buf_size), { "obufs" }, out_buf_size);
+	args::ValueFlag<size_t> obufs_arg(io_tuning_group, "obufs", std::format("output buffer size. default is {}", out_buf_size), { "obufs" }, out_buf_size);
 
 	try
 	{
@@ -113,10 +111,10 @@ void parse_args(int argc, char** argv)
 
 		valid_args();
 	}
-	catch (exception e)
+	catch (const std::exception& e)
 	{
-		cout << parser << endl;
-		cerr << e.what() << endl;
+		std::cout << parser << std::endl;
+		std::cerr << e.what() << std::endl;
 		exit(errno);
 	}
 }
@@ -131,27 +129,27 @@ void free_bufs()
 	if(out_buf) delete[] out_buf;
 }
 
-void append_rand_chars(string& str, size_t len, uniform_int_distribution<>& dist)
+void append_rand_chars(std::string& str, size_t len, std::uniform_int_distribution<>& dist)
 {
 	for (size_t i = 0; i < len; ++i)
 		str += static_cast<char>(dist(mt));
 }
 
-void gen_seq_id(string& seq_id, int seq_ord, size_t seq_len)
+void gen_seq_id(std::string& seq_id, int seq_ord, size_t seq_len)
 {	
 	seq_id += FILE_SIGNATURES[static_cast<int>(file_format)];
 	
 	if (file_format == FileFormat::FILE_FORMAT_FASTA)
 	{
 		seq_id += "sequence";
-		seq_id += to_string(seq_ord);
+		seq_id += std::to_string(seq_ord);
 	}
 
 	else if (file_format == FileFormat::FILE_FORMAT_FASTQ)
 	{
 		append_rand_chars(seq_id, 15, alphabet_dist);
 		seq_id += ".";
-		seq_id += to_string(seq_ord);
+		seq_id += std::to_string(seq_ord);
 
 		if (collapse_record)
 		{
@@ -161,17 +159,17 @@ void gen_seq_id(string& seq_id, int seq_ord, size_t seq_len)
 		}
 
 		seq_id += " length=";
-		seq_id += to_string(seq_len);
+		seq_id += std::to_string(seq_len);
 	}
 }
 
-void gen_seq(string& seq, size_t seq_len)
+void gen_seq(std::string& seq, size_t seq_len)
 {
 	for (size_t i = 0; i < seq_len; ++i)
 		seq += NUC_CHARS[nuc_dist(mt)];
 }
 
-void gen_qual(string& qual, size_t qual_len)
+void gen_qual(std::string& qual, size_t qual_len)
 {
 	append_rand_chars(qual, qual_len, qual_dist);
 }
@@ -182,7 +180,7 @@ void flush_out_buf()
 	out_buf_pos = 0;
 }
 
-void write_rec(const string& rec)
+void write_rec(const std::string& rec)
 {
 	size_t curr_pos = 0;
 	size_t remaining_size = rec.size();
@@ -194,7 +192,7 @@ void write_rec(const string& rec)
 		if (copy_size + out_buf_pos >= out_buf_size)
 			copy_size = out_buf_size - out_buf_pos;
 
-		copy(rec.begin() + curr_pos, rec.begin() + curr_pos + copy_size, out_buf + out_buf_pos);
+		std::copy(rec.begin() + curr_pos, rec.begin() + curr_pos + copy_size, out_buf + out_buf_pos);
 
 		remaining_size = remaining_size >= copy_size ? remaining_size - copy_size : copy_size - remaining_size;
 		out_buf_pos += copy_size;
@@ -205,15 +203,15 @@ void write_rec(const string& rec)
 	}
 }
 
-void append_line_break(string& str)
+void append_line_break(std::string& str)
 {
-	const string new_line = use_crlf ? "\r\n" : "\n";
+	static const std::string new_line = use_crlf ? "\r\n" : "\n";
 	str += new_line;
 }
 
 void gen_recs()
 {
-	string rec_buf;
+	std::string rec_buf;
 	size_t rec_buf_size = 0;
 	uint8_t rec_mem_cnt = RECORD_MEMBER_COUNTS[static_cast<uint8_t>(file_format)];
 
@@ -221,8 +219,8 @@ void gen_recs()
 	rec_buf_size += static_cast<size_t>(use_crlf ? 2 : 1) * rec_mem_cnt;
 	rec_buf.reserve(rec_buf_size);
 
-	seq_len_dist.param(uniform_int_distribution<>::param_type(min_seq_len, max_seq_len));
-	qual_dist.param(uniform_int_distribution<>::param_type(base_qual_offset - min_qual, base_qual_offset + max_qual));
+	seq_len_dist.param(std::uniform_int_distribution<>::param_type(min_seq_len, max_seq_len));
+	qual_dist.param(std::uniform_int_distribution<>::param_type(base_qual_offset - min_qual, base_qual_offset + max_qual));
 
 	for (int i = 0; i < num_records; ++i)
 	{
@@ -254,7 +252,7 @@ int main(int argc, char** argv)
 {
 	try
 	{
-		ios::sync_with_stdio(false);
+		std::ios::sync_with_stdio(false);
 		parse_args(argc, argv);
 
 		open_file(out_name.c_str(), "wb", &out_fp);
@@ -265,9 +263,9 @@ int main(int argc, char** argv)
 		free_bufs();
 		close_file(out_fp);
 	}
-	catch (const exception& e)
+	catch (const std::exception& e)
 	{
-		cout << e.what() << endl;
+		std::cout << e.what() << std::endl;
 		exit(errno);
 	}
 

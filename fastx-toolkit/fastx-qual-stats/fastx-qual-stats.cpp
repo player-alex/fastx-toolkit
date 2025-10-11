@@ -59,7 +59,14 @@ static char max_qual = MAX_QUALITY;
 static size_t in_buf_size = 32768;
 
 /* Statistics variables */
+
+/*
+	Removing this lines may cause performance issues.
+	MSVC does not optimize the following line properly.
+*/
+static unique_ptr<ColumnStatistics[]> _col_stats;
 static ColumnStatistics* col_stats;
+
 static int nuc_idxs[numeric_limits<uint8_t>::max() + 1] = { 0 };
 
 /* libfastx variables */
@@ -105,8 +112,8 @@ void parse_args(int argc, char** argv)
 
 		out_ver = args::get(ov_arg);
 
-		args::get(in_arg).copy(fastx_ctx.in_name, MAX_PATH, 0);
-		args::get(out_arg).copy(fastx_ctx.out_name, MAX_PATH, 0);
+		fastx_ctx.in_name = args::get(in_arg);
+		fastx_ctx.out_name = args::get(out_arg);
 
 		base_qual_offset = args::get(bq_arg);
 		min_qual = args::get(mnq_arg);
@@ -139,30 +146,28 @@ void alloc_bufs()
 	in_buf = new char[in_buf_size];
 
 	memset(&fastx_record, 0, sizeof(FastxRecord_t));
-	fastx_record.seq_id = new char[fastx_ctx.max_seq_len];
-	fastx_record.seq = new char[fastx_ctx.max_seq_len];
-	fastx_record.qual = new char[fastx_ctx.max_seq_len];
+	fastx_record.seq_id = std::make_unique<char[]>(fastx_ctx.max_seq_len);
+	fastx_record.seq = std::make_unique<char[]>(fastx_ctx.max_seq_len);
+	fastx_record.qual = std::make_unique<char[]>(fastx_ctx.max_seq_len);
 
-	col_stats = new ColumnStatistics[fastx_ctx.max_seq_len];
+	/* 
+		If you remove these lines, may cause performance issues.
+		MSVC does not optimize the following line properly.
+	*/
+	_col_stats = std::make_unique<ColumnStatistics[]>(fastx_ctx.max_seq_len);
+	col_stats = _col_stats.get();
 }
 
 void free_bufs()
 {
-	if (in_buf) delete[] in_buf;
-
-	if (fastx_record.seq_id) delete[] fastx_record.seq_id;
-	if (fastx_record.seq) delete[] fastx_record.seq;
-	if (fastx_record.qual) delete[] fastx_record.qual;
-
-	if (col_stats) delete[] col_stats;
 }
 
 void open_files()
 {
-	open_file(fastx_ctx.in_name, "rb", &fastx_ctx.in_stream);
+	open_file(fastx_ctx.in_name.c_str(), "rb", &fastx_ctx.in_stream);
 	fastx_ctx.format = get_file_format(fastx_ctx.in_stream);
 
-	open_file(fastx_ctx.out_name, "wb", &fastx_ctx.out_stream);
+	open_file(fastx_ctx.out_name.c_str(), "wb", &fastx_ctx.out_stream);
 }
 
 void close_files()
