@@ -42,10 +42,6 @@ All tools use **Block-Based I/O** by default. The toolkit provides two performan
 
 ## 📥 Installation
 
-### Pre-built Binaries *(Coming Soon)*
-
-Pre-compiled binaries will be available in the [Releases](../../releases) page.
-
 ### Building from Source
 
 See the [Building from Source](#-building-from-source) section below.
